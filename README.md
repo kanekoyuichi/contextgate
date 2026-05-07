@@ -188,6 +188,17 @@ Use ContextGate as one layer in a defense-in-depth strategy.
 - **v0.4**: LangChain / LlamaIndex integration
 - **v0.5**: Audit logging, CI mode, policy files
 
+## Disclaimer
+
+ContextGate is provided "as is", without warranty of any kind, express or implied.
+The authors and contributors are not liable for any damages or losses arising from
+the use or inability to use this software, including but not limited to security
+incidents, data breaches, or system failures.
+
+ContextGate does not guarantee that all prompt injection attacks will be detected.
+It is intended as one layer in a defense-in-depth strategy and should not be used
+as the sole security control for your system.
+
 ## License
 
 MIT License
