@@ -51,6 +51,7 @@ logs/
 .claude/todos/
 .claude/mcp*.json
 .codex
+.claude/
 AGENT.md
 
 # Claude Code
