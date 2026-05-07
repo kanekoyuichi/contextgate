@@ -1,5 +1,7 @@
 # ContextGate
 
+[日本語版 README はこちら](https://github.com/kanekoyuichi/contextgate/blob/main/README.ja.md)
+
 Detect hidden prompt injection inside documents before they reach your LLM.
 
 ## Why ContextGate?
