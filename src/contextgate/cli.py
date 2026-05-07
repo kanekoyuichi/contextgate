@@ -57,11 +57,23 @@ def scan(
     errors = []
     exit_code = 0
 
+    is_dir_scan = target.is_dir()
+
     for file_path in files:
         try:
             result = scanner.scan_file(file_path)
-        except UnsupportedFormatError:
-            err_console.print(f"[yellow]Skipping unsupported format: {file_path}[/yellow]")
+        except UnsupportedFormatError as e:
+            if is_dir_scan:
+                err_console.print(f"[yellow]Skipping unsupported format: {file_path}[/yellow]")
+            else:
+                errors.append({
+                    "file": str(file_path),
+                    "error": "UnsupportedFormatError",
+                    "message": str(e),
+                })
+                exit_code = max(exit_code, 2)
+                if not json_output:
+                    err_console.print(f"[red][ERROR][/red] {file_path}: UnsupportedFormatError: {e}")
             continue
         except (ExtractionError, FileTooLargeError) as e:
             errors.append({

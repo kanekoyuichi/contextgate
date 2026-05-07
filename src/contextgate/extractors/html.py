@@ -38,6 +38,69 @@ def _is_hidden_by_style(style: str) -> str | None:
     return None
 
 
+def _detect_hidden_source(tag: Tag) -> str | None:
+    style = tag.get("style", "")
+    if style:
+        source = _is_hidden_by_style(style)
+        if source:
+            return source
+    if tag.get("hidden") is not None:
+        return "hidden_attr"
+    if tag.get("aria-hidden") == "true":
+        return "aria_hidden"
+    return None
+
+
+# Tags that flow inline — safe to merge with surrounding text.
+# Includes HTML4 inline elements and HTML5 phrasing content.
+_INLINE_TAGS = frozenset({
+    "a", "abbr", "acronym", "b", "bdi", "bdo", "big", "br", "button",
+    "cite", "code", "data", "del", "dfn", "em", "i", "img", "input",
+    "ins", "kbd", "label", "map", "mark", "object", "output", "q",
+    "rp", "rt", "ruby", "s", "samp", "select", "small", "span",
+    "strong", "sub", "sup", "textarea", "time", "tt", "u", "var", "wbr",
+})
+
+
+def _has_block_child(tag: Tag) -> bool:
+    for child in tag.children:
+        if isinstance(child, Tag) and child.name not in _INLINE_TAGS:
+            return True
+    return False
+
+
+def _build_hidden_ancestor_set(root: Tag) -> set[int]:
+    """Return id()s of Tags that contain at least one hidden descendant.
+
+    Iterative post-order DFS: each Tag is processed exactly once → O(n).
+    Avoids both repeated subtree scans and ancestor chain walks.
+    """
+    has_hidden_desc: set[int] = set()
+    subtree_has_hidden: dict[int, bool] = {}
+
+    # Stack stores (tag, children_pushed)
+    stack: list[tuple[Tag, bool]] = [(root, False)]
+    while stack:
+        tag, children_pushed = stack.pop()
+        if not children_pushed:
+            stack.append((tag, True))
+            for child in tag.children:
+                if isinstance(child, Tag):
+                    stack.append((child, False))
+        else:
+            self_hidden = _detect_hidden_source(tag) is not None
+            child_hidden = any(
+                subtree_has_hidden.get(id(c), False)
+                for c in tag.children
+                if isinstance(c, Tag)
+            )
+            subtree_has_hidden[id(tag)] = self_hidden or child_hidden
+            if child_hidden:
+                has_hidden_desc.add(id(tag))
+
+    return has_hidden_desc
+
+
 def extract_html(path: str | Path) -> list[ExtractedSegment]:
     p = Path(path)
     _check_size(p)
@@ -51,36 +114,65 @@ def extract_html(path: str | Path) -> list[ExtractedSegment]:
         if text:
             segments.append(ExtractedSegment(text=text, hidden=True, hidden_source="html_comment"))
 
+    body = soup.body or soup
+    # Pre-compute which elements have hidden descendants — O(n) single pass
+    hidden_ancestors = _build_hidden_ancestor_set(body)
+
     def _walk(tag: Tag) -> None:
+        # Accumulate consecutive visible text/inline children into runs so that
+        # phrases split by inline markup (e.g. <b>, <em>) stay in one segment.
+        # Hidden elements flush the run and are emitted separately.
+        visible_run: list = []
+
+        def _flush_run() -> None:
+            if not visible_run:
+                return
+            parts: list[str] = []
+            for node in visible_run:
+                t = node.get_text(separator=" ") if isinstance(node, Tag) else str(node)
+                if t.strip():
+                    parts.append(t.strip())
+            if parts:
+                segments.append(ExtractedSegment(text=" ".join(parts)))
+            visible_run.clear()
+
         for child in tag.children:
             if isinstance(child, Comment):
                 continue
             if not isinstance(child, Tag):
-                text = str(child).strip()
-                if text:
-                    segments.append(ExtractedSegment(text=text))
+                visible_run.append(child)
                 continue
 
-            hidden_source: str | None = None
-
-            style = child.get("style", "")
-            if style:
-                hidden_source = _is_hidden_by_style(style)
-
-            if hidden_source is None and child.get("hidden") is not None:
-                hidden_source = "hidden_attr"
-
-            if hidden_source is None and child.get("aria-hidden") == "true":
-                hidden_source = "aria_hidden"
-
+            hidden_source = _detect_hidden_source(child)
             if hidden_source:
+                _flush_run()
                 text = child.get_text(separator=" ").strip()
                 if text:
                     segments.append(ExtractedSegment(text=text, hidden=True, hidden_source=hidden_source))
+            elif child.name in _INLINE_TAGS:
+                if id(child) in hidden_ancestors:
+                    # Inline element containing a hidden descendant — flush and recurse
+                    _flush_run()
+                    _walk(child)
+                else:
+                    # Visible inline element — accumulate into current run
+                    visible_run.append(child)
             else:
-                _walk(child)
+                # Block element — flush the inline run first
+                _flush_run()
+                if id(child) in hidden_ancestors:
+                    _walk(child)
+                elif not _has_block_child(child):
+                    # Block with only inline children — emit as one phrase
+                    text = child.get_text(separator=" ").strip()
+                    if text:
+                        segments.append(ExtractedSegment(text=text))
+                else:
+                    # Block with block children — recurse to keep blocks separate
+                    _walk(child)
 
-    body = soup.body or soup
+        _flush_run()
+
     _walk(body)
 
     return segments

@@ -5,7 +5,7 @@ from .result import Finding
 SECRET_PATTERNS: list[tuple[str, re.Pattern]] = [
     ("aws_access_key", re.compile(r"AKIA[0-9A-Z]{16}")),
     ("github_token", re.compile(r"ghp_[A-Za-z0-9_]{36,}")),
-    ("openai_api_key", re.compile(r"sk-[A-Za-z0-9]{20,}")),
+    ("openai_api_key", re.compile(r"sk-[A-Za-z0-9_-]{20,}")),
     ("slack_token", re.compile(r"xoxb-[A-Za-z0-9-]+")),
     ("generic_password", re.compile(r"password\s*=\s*[\"']?(?P<val>[^\s\"']+)", re.IGNORECASE)),
 ]
