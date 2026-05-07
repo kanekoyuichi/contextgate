@@ -1,3 +1,9 @@
+## [0.1.1] - 2026-05-07
+
+### Docs
+
+- README / README.ja に免責事項（Disclaimer）セクションを追加
+
 ## [0.1.0] - 2026-05-07
 
 ### Features
