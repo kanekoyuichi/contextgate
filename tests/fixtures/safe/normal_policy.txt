@@ -1,0 +1,22 @@
+Company Privacy Policy
+
+This document outlines how we handle user data.
+
+1. Data Collection
+We collect only the information necessary to provide our services.
+All data is stored securely and access is restricted to authorized personnel.
+
+2. Data Usage
+User data is used solely to improve our services and user experience.
+We do not sell or share user data with third parties without explicit consent.
+
+3. Data Retention
+We retain user data for as long as necessary to fulfill the purposes outlined in this policy.
+Users may request deletion of their data at any time.
+
+4. Security
+We implement industry-standard security measures to protect user data.
+Regular security audits are conducted to ensure compliance.
+
+5. Contact
+For questions about this policy, please contact privacy@company.com.

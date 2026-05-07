@@ -1,0 +1,78 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Secrets / Keys
+*.pem
+*.key
+*.p12
+*.pfx
+secrets/
+credentials/
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+env/
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# Logs
+*.log
+logs/
+
+# AI Agent
+.claude/settings.local.json
+.claude/todos/
+.claude/mcp*.json
+.codex
+AGENT.md
+
+# Claude Code
+CLAUDE.local.md
+CLAUDE.md
+
+# LLM / Vector DB
+*.chroma/
+chroma_db/
+vector_store/
+embeddings/
+*.faiss
+*.pkl
+
+# Agent state / memory
+agent_state/
+agent_memory/
+sessions/
+checkpoints/
+runs/
+
+# Temporary
+tmp/
+temp/
+.cache/

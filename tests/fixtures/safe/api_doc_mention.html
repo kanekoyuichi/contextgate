@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>API Documentation</title>
+</head>
+<body>
+  <h1>Getting Started with the API</h1>
+  <p>This guide explains how to use our REST API.</p>
+
+  <h2>What is an API key?</h2>
+  <p>An API key is a unique identifier that authenticates your requests.
+  You will receive an API key when you register for an account.
+  Keep your API key confidential.</p>
+
+  <h2>Authentication</h2>
+  <p>To authenticate, include your API key in the request header.
+  Never share your API key in public repositories or documentation.</p>
+
+  <h2>Rate Limits</h2>
+  <p>The API allows up to 1000 requests per hour per API key.
+  If you exceed this limit, you will receive a 429 Too Many Requests response.</p>
+
+  <h2>Error Codes</h2>
+  <ul>
+    <li><strong>401</strong>: Invalid or missing API key</li>
+    <li><strong>403</strong>: Forbidden</li>
+    <li><strong>429</strong>: Rate limit exceeded</li>
+  </ul>
+</body>
+</html>
